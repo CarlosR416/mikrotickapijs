@@ -1,0 +1,31 @@
+{
+  "name": "apimikroapp",
+  "version": "1.0.0",
+  "description": "Esta es la api de Acceso a los mikroticks",
+  "main": "index.js",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
+    "core-decorators": "^0.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-validator": "^6.14.1",
+    "jsonwebtoken": "^8.5.1",
+    "mikronode": "^2.3.11",
+    "rxjs": "^5.5.12",
+    "socket.io": "^2.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node build/index.js",
+    "build": "babel src --out-dir build",
+    "dev": "nodemon src/index.js --exec node"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
