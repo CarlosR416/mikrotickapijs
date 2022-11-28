@@ -2,39 +2,109 @@ const router = require('express').Router()
 
 var MikroNode = require('mikronode');
 
-var ipmikro = "194.195.223.242";
-var portmikro = "7024";
-var usermikro = "admin";
-var passmikro = "admin8891957";
+const AuthMikroTick = require('../middlewares/AuthMikroTick');
 
-router.get('/status/:ip', (req, res) => {
-    const {ip} = req.params 
+var ipmikro = "194.195.223.242";
+var portmikro = "7013";
+var usermikro = "admin";
+var passmikro = "8891957";
+
+router.use("/", AuthMikroTick)
+//get status device
+router.get('/status', (req, res) => {
     
-    console.log(ip)
+
+    const IpAccess = req.data.ip
+    const usermikro = req.data.user
+    const password = req.data.pass
+    const port = req.data.port
+
+
+    
     // Create API instance to a host.
-    var device = new MikroNode(ipmikro, portmikro);
+    var device = new MikroNode(IpAccess, port);
     // device.setDebug(MikroNode.DEBUG);
 
     // Connect to MikroTik device
-    device.connect().then(([login])=>login(usermikro,passmikro)).then(conn=>{
+    device.connect().then(([login])=>login(usermikro,password)).then(conn=>{
         
-        res.json({"status": 'Activo'})  
+        res.json({"status": 'Activo sd'})  
             
     }).catch(error=>{
         console.log("Error logging in ",error);
 
-        res.json({"status": 'Inactivo'})
+        res.json({"status": 'Inactivo as'})
     });
 
-   
+    
 })
 
-router.get('/hotspot/host/:ip', (req, res) => {
-    const {ip} = req.params
+router.get('/hotspot/host', (req, res) => {
+    
+    const IpAccess = req.data.ip
+    const usermikro = req.data.user
+    const password = req.data.pass
+    const port = req.data.port
 
-    var device = new MikroNode(ipmikro, portmikro);
+    var device = new MikroNode(IpAccess, port);
 
-    device.connect().then(([login])=>login(usermikro,passmikro)).then(conn=>{
+    device.connect().then(([login])=>login(usermikro,password)).then(conn=>{
+        conn.closeOnDone(true)
+
+        var channel = conn.openChannel("hotspot_host")
+
+        channel.write("/ip/hotspot/host/print")
+        channel.sync(true)
+
+        channel.on('done', function(packet) {
+            res.json(MikroNode.resultsToObj(packet2.data))
+        })
+
+    }).catch(error=>{
+        console.log(error)
+        res.json({"error": "Sin Conexion"})
+    })
+})
+
+router.get('/hotspot/active', (req, res) => {
+    
+    const IpAccess = req.data.ip
+    const usermikro = req.data.user
+    const password = req.data.pass
+    const port = req.data.port
+
+    var device = new MikroNode(IpAccess, port);
+
+    device.connect().then(([login])=>login(usermikro,password)).then(conn=>{
+        conn.closeOnDone(true)
+
+        var channel = conn.openChannel("hotspot_active")
+
+        channel.write("/ip/hotspot/active/print")
+        channel.sync(true)
+
+        channel.on('done', function(packet) {
+              
+            res.json(MikroNode.resultsToObj(packet.data))
+            
+        })
+
+    }).catch(error=>{
+        console.log(error)
+        res.json({"error": "Sin Conexion"})
+    })
+})
+
+router.get('/hotspot/conectados', (req, res) => {
+    
+    const IpAccess = req.data.ip
+    const usermikro = req.data.user
+    const password = req.data.pass
+    const port = req.data.port
+
+    var device = new MikroNode(IpAccess, port);
+
+    device.connect().then(([login])=>login(usermikro,password)).then(conn=>{
         conn.closeOnDone(true)
 
         var channel = conn.openChannel("hotspot_host")
@@ -56,6 +126,31 @@ router.get('/hotspot/host/:ip', (req, res) => {
                 res.json(merge.concat(MikroNode.resultsToObj(packet2.data)))
             })
             
+        })
+
+    }).catch(error=>{
+        console.log(error)
+        res.json({"error": "Sin Conexion"})
+    })
+})
+
+router.get('/hotspot/ticket/:ticket', (req, res) => {
+    const {ticket} = req.params
+
+    var device = new MikroNode(ipmikro, portmikro);
+
+    device.connect().then(([login])=>login(usermikro,passmikro)).then(conn=>{
+        conn.closeOnDone(true)
+
+        var channel = conn.openChannel("hotspot_host")
+        
+
+        channel.write("/ip/hotspot/user/print", {"?profile": ticket, "?>comment": ""})
+        channel.sync(true)
+
+        channel.on('done', function(packet) {
+           
+            res.json(MikroNode.resultsToObj(packet.data))
             
         })
 
@@ -63,6 +158,8 @@ router.get('/hotspot/host/:ip', (req, res) => {
         console.log(error)
         res.json({"error": "Sin Conexion"})
     })
+
+    
 })
 
 router.get('/hotspot/tickethost/', (req, res) => {

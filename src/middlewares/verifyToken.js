@@ -4,7 +4,12 @@ const jwt = require("jsonwebtoken")
 
 // valida el token y brinda acceso a rutas protegidas
 const verifyToken = (req, res, next) => {
-    const token = req.cookies.auth_token
+    let token = req.cookies.token_api
+    
+    if(!token){
+        token = req.query.token
+    }
+  
     
     if (!token) return res.status(401).send('Acceso denegado')
     try {

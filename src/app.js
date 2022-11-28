@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const app = express()
@@ -6,7 +7,18 @@ const io = require("socket.io")(server, {
     origins: ["http://localhost"]
   })
 
-const MikrotckRoutes = require('./routes/mikrotiks')
+//cookies
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
+
+//jsonwebtoken
+const jwt = require('jsonwebtoken')
+
+const verifyToken = require('./middlewares/verifyToken')
+
+const MikrotickRoutes = require('./routes/mikrotiks')
+const AuthMikroTick = require('./middlewares/AuthMikroTick') 
+const ZonawifiRouters = require('./routes/zonawifi')
 
 io.on("connection", function (socket) {
 
@@ -62,12 +74,10 @@ io.on("connection", function (socket) {
 
 app.use(cors())
 
-app.use("/mikroticks", MikrotckRoutes)
+app.use("/zonawifi/:id/:access/:ip/:port", verifyToken, AuthMikroTick, ZonawifiRouters)
 
 app.get('/', function(req, res){
-    res.send("hola")
+    res.send("Server Active")
 })
-
-
 
 module.exports = server

@@ -21,7 +21,7 @@ const  {check, validationResult}  = require('express-validator');
 //rutas
 const Routes = require('./routes/Routes')
 
-const verifyToken = require('./routes/verifyToken')
+const verifyToken = require('./middlewares/verifyToken')
 //const { resolve } = require('path')
 //const { rejects } = require('assert')
 
